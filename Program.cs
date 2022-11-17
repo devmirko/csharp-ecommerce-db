@@ -36,6 +36,7 @@ switch (response)
                     Product.StampaProduct();
                     break;
                 case 2:
+                    Product.StampaProduct();
                     Console.WriteLine("inserisci il prodotto che vuoi ordinare");
                     string nomeProdotto = Console.ReadLine();
                     NewOrder(nomeProdotto);
@@ -63,25 +64,32 @@ switch (response)
                     break;
 
             }
-            
-            //aggiugni un ordine
-            //elimina un ordine
-            //modifica un ordine
-            //esci
-
+           
 
         }
         break;
     case 2:
         while (semaforo)
         {
+            Console.Write("Ciao, inserisci il tuo nome: ");
+            string name = Console.ReadLine();
+            Console.Write("Il tuo cognome: ");
+            string surname = Console.ReadLine();
+            Customer RicercaCliente = db.Customers.Where(customer => customer.Name == name || customer.Surname == surname).FirstOrDefault();
 
-            //fai un ordine
+            if (RicercaCliente != null)
+            {
+                ListaOrdini();
+                Console.Write("inserisci il numero del ordine che vuoi acquistare");
+                int idUserMod = Convert.ToInt32(Console.ReadLine());
+                Order ordineRicercato = db.Orders.Where(i => i.OrderId == idUserMod).FirstOrDefault();
+                ordineRicercato.CustomerId = RicercaCliente.CustomerId;
+                db.SaveChanges();
+                Console.Write("l'ordine è stato effettuato correttamente");
+
+            }
 
         }
-        break;
-    case 3:
-       
         break;
     default:
 		break;
@@ -93,11 +101,13 @@ void NewOrder(string nome)
     Product product = db.Products.Where(prodotto => prodotto.Name == nome).First();
     List<Product> products = new List<Product>();
     products.Add(product);
-    Customer customer = db.Customers.First();
-    Employee employee = db.Employees.First();
+    int randomCustomer = new Random().Next(1, 3);
+    Customer customer = db.Customers.Where(c => c.CustomerId == randomCustomer).First();
+    int randomemployee = new Random().Next(1, 3);
+    Employee employee = db.Employees.Where(e => e.EmployeeId == randomemployee).First();
     int random = new Random().Next(0, 2);
     bool stato = false;
-    if (random >= 1) {
+    if (random == 1) {
         stato = true;
     }
         
