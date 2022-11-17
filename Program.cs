@@ -4,13 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Runtime.ConstrainedExecution;
 
 Console.WriteLine("Hello, World!");
-Console.WriteLine("Hello, World!");
-
-//Seconda Parte
-//Considerando che:
-//ci sono clienti che effettuano ordini.
-//Un ordine viene preparato da un dipendente.
-//Un ordine ha associato uno o più pagamenti (considerando eventuali tentativi falliti)
 
 CommerceContext db = new CommerceContext();
 Console.WriteLine("Benvenuti da Unieuro");
@@ -31,10 +24,11 @@ switch (response)
 		{
             Product.AddProduct();
             Console.WriteLine("benvenuto dipendente");
-            Console.WriteLine("1- visualizza tutti i prodotti");
-            Console.WriteLine("2- aggiungi un ordine");
-            Console.WriteLine("3- visualizza gli ordini");
-            Console.WriteLine("3- modifica un ordine");
+            Console.WriteLine("1 - visualizza tutti i prodotti");
+            Console.WriteLine("2 - aggiungi un ordine");
+            Console.WriteLine("3 - visualizza gli ordini");
+            Console.WriteLine("4 - elimina un ordine");
+            Console.WriteLine("5 - modifica un ordine");
             int risposta = Convert.ToInt32(Console.ReadLine());
             switch (risposta)
             {
@@ -50,6 +44,19 @@ switch (response)
                     break;
                 case 3:
                     ListaOrdini();
+
+                    break;
+                case 4:
+                    Console.WriteLine("inserisci id del ordine che vuoi eliminare");
+                    ListaOrdini();
+                    int idUser = Convert.ToInt32(Console.ReadLine());
+                    Delete(idUser);
+                    break;
+                case 5:
+                    Console.WriteLine("inserisci id del ordine che vuoi modificare");
+                    ListaOrdini();
+                    int idUserMod = Convert.ToInt32(Console.ReadLine());
+                    ModificaOrdine(idUserMod);
 
                     break;
                 default:
@@ -84,21 +91,17 @@ void NewOrder(string nome)
 {
     CommerceContext db = new CommerceContext();
     Product product = db.Products.Where(prodotto => prodotto.Name == nome).First();
-
+    List<Product> products = new List<Product>();
+    products.Add(product);
     Customer customer = db.Customers.First();
-
     Employee employee = db.Employees.First();
     int random = new Random().Next(0, 2);
     bool stato = false;
-    if (random == 1) {
+    if (random >= 1) {
         stato = true;
     }
         
-
-
-
-
-    Order order = new Order() { date = new DateTime(), Amount = product.price, Status = stato, EmployeeId = employee.EmployeeId, CustomerId = customer.CustomerId };
+    Order order = new Order() { date = new DateTime(), Amount = product.price, Status = stato, EmployeeId = employee.EmployeeId, CustomerId = customer.CustomerId, ProductOrder = products};
     db.Orders.Add(order);
     db.SaveChanges();
 
@@ -112,13 +115,45 @@ void ListaOrdini()
     int i = 0;
     foreach (Order order in orders)
     {
-        Console.WriteLine((i + 1) + " - " + order.EmployeeId + "" + order.date );
-        i++;
+        
+        
+     Console.WriteLine((i + 1) + " - " + order.EmployeeId + "-" + order.date + "-" + order.Status);
+     i++;
+        
+        
+    }
+}
+
+void Delete(int id)
+{
+    CommerceContext db = new CommerceContext();
+    Order order = db.Orders.Where(i => i.OrderId == id).First();
+    if( order == null)
+    {
+        Console.WriteLine("non hai trovato nessun ordine");
+
     }
 
+    db.Orders.Remove(order);
+    db.SaveChanges();
 
 
-    
+
+}
+
+void ModificaOrdine(int id)
+{
+    CommerceContext db = new CommerceContext();
+    Order order = db.Orders.Where(o => o.OrderId == id).FirstOrDefault();
+    Console.WriteLine("inserisci il nuovo prezzo");
+    int price = Convert.ToInt32(Console.ReadLine());
+    order.Amount = price;
+    Console.WriteLine("inserisci una nuova data");
+    string DataStringa = Console.ReadLine();
+    DateTime data = DateTime.Parse(DataStringa);
+    order.date = data;
+    db.SaveChanges();
+
 }
 
 
